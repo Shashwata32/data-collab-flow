@@ -155,7 +155,7 @@ async function addComment(chartId, message, userId) {
 module.exports = {
   registerUser,
   loginUser,
-  getUserById,
+  getUserById, 
   createOrganization,
   getOrganizationById,
   getUserOrganizations,
