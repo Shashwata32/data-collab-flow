@@ -16,7 +16,10 @@ const app = express();
 const httpServer = http.createServer(app);
 
 // Redis setup
-const redis = new Redis();
+// Use the REDIS_URL from the .env file to connect to the redis container
+const redis = new Redis(process.env.REDIS_URL);
+const redisSubscriber = new Redis(process.env.REDIS_URL);
+
 
 // Socket.io setup
 const io = new Server(httpServer, {
@@ -44,7 +47,6 @@ io.on('connection', (socket) => {
 });
 
 // Subscribe to Redis channel for real-time updates
-const redisSubscriber = new Redis();
 redisSubscriber.subscribe('chart-updates', (err, count) => {
   if (err) {
     console.error('Failed to subscribe to Redis channel', err);

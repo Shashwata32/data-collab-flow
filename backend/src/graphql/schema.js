@@ -9,11 +9,15 @@ const typeDefs = gql`
     email: String!
   }
 
+  type AuthPayload {
+    token: String!
+    user: User!
+  }
+
   type Organization {
     id: ID!
     name: String!
     owner: User!
-    users: [User!]!
   }
 
   type Dashboard {
@@ -45,10 +49,22 @@ const typeDefs = gql`
   }
 
   type Mutation {
+    # Auth
+    register(username: String!, email: String!, password: String!): AuthPayload!
+    login(email: String!, password: String!): AuthPayload!
+
+    # Organization
+    createOrganization(name: String!): Organization!
+
+    # Dashboard
     createDashboard(name: String!, orgId: ID!): Dashboard!
     updateDashboard(id: ID!, name: String, status: String): Dashboard
+    
+    # Chart
     addChart(dashboardId: ID!, type: String!, data: JSON!, position: Int!): Chart!
     updateChart(id: ID!, data: JSON, position: Int): Chart
+    
+    # Comment
     addComment(chartId: ID!, message: String!): Comment!
   }
 `;
