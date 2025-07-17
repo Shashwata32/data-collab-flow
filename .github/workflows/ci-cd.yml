@@ -1,0 +1,61 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_and_test_backend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - name: Install dependencies and run tests
+      working-directory: ./backend
+      run: |
+        npm install
+        # npm test # Uncomment when you have tests
+
+  build_and_test_ai_service:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    - name: Install dependencies and run tests
+      working-directory: ./python-ai-service
+      run: |
+        pip install -r requirements.txt
+        # pytest # Uncomment when you have tests
+
+  # Add a job to build and push Docker images to a registry like Docker Hub or AWS ECR
+  # build_and_push_images:
+  #   needs: [build_and_test_backend, build_and_test_ai_service]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Log in to Docker Hub
+  #       uses: docker/login-action@v2
+  #       with:
+  #         username: ${{ secrets.DOCKER_HUB_USERNAME }}
+  #         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  #     - name: Build and push backend image
+  #       uses: docker/build-push-action@v4
+  #       with:
+  #         context: ./backend
+  #         push: true
+  #         tags: your-dockerhub-username/data-collab-backend:latest
+  #     - name: Build and push AI service image
+  #       uses: docker/build-push-action@v4
+  #       with:
+  #         context: ./python-ai-service
+  #         push: true
+  #         tags: your-dockerhub-username/data-collab-ai-service:latest
