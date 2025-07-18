@@ -1,17 +1,16 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-default-secret';
-
 function authenticate(token) {
   if (!token) {
-    throw new Error('Not authenticated');
+    throw new Error('Not authenticated: No token provided.');
   }
-
   try {
-    const user = jwt.verify(token, JWT_SECRET);
-    return user;
+    // jwt.verify will throw an error if the token is invalid or expired
+    return jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
-    throw new Error('Invalid token');
+    // Log the specific error for debugging, but return a generic message
+    console.error('JWT Verification Error:', err.message);
+    throw new Error('Authentication failed: Invalid token.');
   }
 }
 

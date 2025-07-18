@@ -1,4 +1,13 @@
+# The 'version' tag is obsolete and has been removed.
+# Docker Compose now uses the Compose Specification.
+
+# Define a top-level network for all services to share
+networks:
+  data-collab-net:
+    driver: bridge
+
 services:
+  # Frontend Service (React + Vite)
   frontend:
     build: ./frontend
     ports:
@@ -6,52 +15,63 @@ services:
     volumes:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - backend
+    networks:
+      - data-collab-net
 
+  # Backend Service (Node.js + Express + GraphQL)
   backend:
     build: ./backend
-    command: npm run dev
     ports:
       - "4000:4000"
     volumes:
       - ./backend:/usr/src/app
       - /usr/src/app/node_modules
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/datadb
-      - JWT_SECRET=your-super-secret-key
-      - REDIS_URL=redis://redis:6379
+    # Load environment variables from the .env file
+    env_file:
+      - ./.env
     depends_on:
       - db
       - redis
+    networks:
+      - data-collab-net
 
+  # Database Service (PostgreSQL)
   db:
     image: postgres:13
-    restart: always
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: datadb
+    # Load environment variables from the .env file
+    env_file:
+      - ./.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
-    volumes:
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - data-collab-net
 
+  # Redis Service
   redis:
-    image: redis:6-alpine
-    restart: always
+    image: redis:6.2-alpine
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - data-collab-net
 
+  # Python AI Service (FastAPI)
   python-ai-service:
     build: ./python-ai-service
     ports:
       - "8000:8000"
     volumes:
-      - ./python-ai-service:/code
+      - ./python-ai-service:/usr/src/app
+    networks:
+      - data-collab-net
 
 volumes:
   postgres_data:
