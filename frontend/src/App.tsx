@@ -24,14 +24,23 @@ const App = () => (
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          
+          {/* Redirect base URL to a default dashboard */}
           <Route 
             path="/" 
+            element={<Navigate to="/dashboard/1" replace />} 
+          />
+          
+          {/* Route to handle specific dashboards */}
+          <Route 
+            path="/dashboard/:dashboardId" 
             element={
               <PrivateRoute>
                 <Index />
               </PrivateRoute>
             } 
           />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
